@@ -5,15 +5,15 @@
 Для корректной работе на windows надо использовать git bash/wsl (на windows не тестировал)
 
 ```sh
-    cp .env.example .env
-    docker compose up --build -d
+cp .env.example .env
+docker compose up --build -d
 ```
 
 
 ## Тестирование
 
 ```sh
-    go test ./...
+go test ./...
 ```
 
 Я сделал только базовые unit тесты с минимумом тестируемой логики для экономии времени.
