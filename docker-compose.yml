@@ -1,0 +1,56 @@
+volumes:
+  pgdata:
+
+name: api
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: cmd/Dockerfile
+    container_name: api
+    env_file: .env
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - pg-api
+    networks:
+      - api-network
+
+  pg-api:
+    image: postgres:17-alpine
+    container_name: pg-api
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - api-network
+
+  pgadmin-api:
+    image: dpage/pgadmin4
+    container_name: pgadmin-api
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - 8083:80
+    depends_on:
+      - pg-api
+    networks:
+      - api-network
+
+networks:
+  api-network:
+    driver: bridge
